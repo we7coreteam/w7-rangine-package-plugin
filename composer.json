@@ -1,0 +1,25 @@
+{
+	"name": "w7/rangine-package-plugin",
+	"license": "Apache-2.0",
+	"description": "rangine package plugin",
+	"type": "composer-plugin",
+	"require": {
+		"ext-json": "*",
+		"composer-plugin-api": "^1.0",
+		"funkjedi/composer-include-files": "^1.0",
+		"composer/composer": "~1.0"
+	},
+	"autoload": {
+		"psr-4" : {
+			"W7\\PackagePlugin\\": "src/"
+		}
+	},
+	"extra": {
+		"class": "W7\\PackagePlugin\\Plugin\\Plugin"
+	},
+	"scripts": {
+		"post-autoload-dump": [
+			"W7\\PackagePlugin\\Plugin\\Plugin::initPackage"
+		]
+	}
+}
