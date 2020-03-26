@@ -61,12 +61,12 @@ class Processor extends ProcessorAbstract {
 		$content .="	];\r\n}";
 
 		try {
-			$providerConfigPath = $vendorPath  . '/composer/rangine/autoload/provider.php';
-			if (!is_dir(dirname($providerConfigPath))) {
-				mkdir(dirname($providerConfigPath), 777, true);
+			$providerFile = $vendorPath  . '/composer/rangine/autoload/provider.php';
+			if (!is_dir(dirname($providerFile))) {
+				mkdir(dirname($providerFile), 777, true);
 			}
-			file_put_contents($providerConfigPath, $content);
-			$this->autoloadFiles[] = $providerConfigPath;
+			file_put_contents($providerFile, $content);
+			$this->addAutoloadFiles($providerFile);
 		} catch (\Throwable $e) {
 			null;
 		}

@@ -38,6 +38,11 @@ abstract class ProcessorAbstract {
 		$this->installedFileData = $data;
 	}
 
+	protected function addAutoloadFiles($files) {
+		$files = (array)$files;
+		$this->autoloadFiles = array_merge($this->autoloadFiles, $files);
+	}
+
 	public function getAutoloadFiles() {
 		return $this->autoloadFiles;
 	}
