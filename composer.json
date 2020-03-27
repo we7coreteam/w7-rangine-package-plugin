@@ -9,6 +9,9 @@
 		"funkjedi/composer-include-files": "^1.0",
 		"composer/composer": "~1.0"
 	},
+	"require-dev": {
+		"w7/php-cs-fixer": "^1.0"
+	},
 	"autoload": {
 		"psr-4" : {
 			"W7\\PackagePlugin\\": "src/"
