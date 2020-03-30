@@ -35,10 +35,13 @@ class Processor extends ProcessorAbstract {
 			$eventName = $file->getRelativePathname();
 			$eventName = substr($eventName, 0, strlen($eventName) - 9);
 			$eventName = str_replace('/', '\\', $eventName);
-			$listenerClass = $classNamespace . '\\Listener\\' . $eventName . 'Listener';
 
-			$eventClass = $classNamespace . '\\Event\\' . $eventName . 'Event';
-			$events[$eventClass] = $listenerClass;
+			$listenerFile = $eventName . 'Listener.php';
+			if (file_exists(dirname($path) . '/Listener/' . str_replace('\\', '/', $listenerFile))) {
+				$eventClass = $classNamespace . '\\Event\\' . $eventName . 'Event';
+				$listenerClass = $classNamespace . '\\Listener\\' . $eventName . 'Listener';
+				$events[$eventClass] = $listenerClass;
+			}
 		}
 
 		return $events;
