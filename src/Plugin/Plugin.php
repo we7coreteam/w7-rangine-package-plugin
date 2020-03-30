@@ -10,7 +10,8 @@ use Composer\Plugin\PluginInterface;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use ComposerIncludeFiles\Composer\AutoloadGenerator;
 use W7\PackagePlugin\Processor\ProcessorAbstract;
-use W7\PackagePlugin\Processor\Provider\Processor;
+use W7\PackagePlugin\Processor\Provider\Processor as ProviderProcessor;
+use W7\PackagePlugin\Processor\Event\Processor as EventProvessor;
 
 class Plugin implements PluginInterface, EventSubscriberInterface {
 	/**
@@ -24,7 +25,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 	protected $io;
 
 	protected $processors = [
-		Processor::class
+		ProviderProcessor::class,
+		EventProvessor::class
 	];
 
 	protected $installedFileData = [];
@@ -83,6 +85,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		$vendorPath = $plugin->getVendorPath();
 		$installedFileData = $plugin->getInstalledFileData($vendorPath);
 
+		$autoloadFiles = [];
 		foreach ($plugin->processors as $processor) {
 			/**
 			 * @var ProcessorAbstract $processor
@@ -90,7 +93,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			$processor = new $processor($event);
 			$processor->setInstalledFileContent($installedFileData);
 			$processor->process($vendorPath);
-			$plugin->addAutoloadFiles($processor->getAutoloadFiles());
+			$autoloadFiles = array_merge($autoloadFiles, $processor->getAutoloadFiles());
 		}
+
+		$plugin->addAutoloadFiles($autoloadFiles);
 	}
 }
