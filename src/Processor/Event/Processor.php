@@ -47,6 +47,7 @@ class Processor extends ProcessorAbstract {
 	private function generateEventConfig($events, $vendorPath) {
 		$content = "<?php\r\nfunction iUserEvents() { \r\n	return [\r\n";
 		foreach ($events as $event => $listeners) {
+			$listeners = (array)$listeners;
 			$content .= "		'" . $event . "' => [\r\n";
 			foreach ($listeners as $listener) {
 				$content .= "			'" . $listener . "',";
