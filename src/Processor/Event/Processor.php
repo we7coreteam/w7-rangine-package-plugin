@@ -10,7 +10,8 @@ class Processor extends ProcessorAbstract {
 	public function process($vendorPath) {
 		$dir = dirname($vendorPath, 1) . '/app/Event';
 		$appEvents = $this->findEvents($dir, 'W7\\App');
-		$this->generateEventConfig($appEvents, $vendorPath);
+		$eventFilePath = $this->generateEventConfig($appEvents, $vendorPath);
+		$this->addAutoloadFiles($eventFilePath);
 	}
 
 	/**
@@ -59,11 +60,12 @@ class Processor extends ProcessorAbstract {
 		}
 		$content .="	];\r\n}";
 
-		$eventFile = $vendorPath  . '/composer/rangine/autoload/event.php';
-		if (!is_dir(dirname($eventFile))) {
-			mkdir(dirname($eventFile), 0777, true);
+		$eventFilePath = $vendorPath  . '/composer/rangine/autoload/event.php';
+		if (!is_dir(dirname($eventFilePath))) {
+			mkdir(dirname($eventFilePath), 0777, true);
 		}
-		file_put_contents($eventFile, $content);
-		$this->addAutoloadFiles($eventFile);
+		file_put_contents($eventFilePath, $content);
+
+		return $eventFilePath;
 	}
 }

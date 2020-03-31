@@ -10,7 +10,8 @@ class Processor extends ProcessorAbstract {
 	public function process($vendorPath) {
 		$vendorProviders = $this->findVendorProviders();
 		$appProviders = $this->findAppProviders($vendorPath);
-		$this->generateProviderConfig(array_merge($vendorProviders, $appProviders), $vendorPath);
+		$providerFilePath = $this->generateProviderConfig(array_merge($vendorProviders, $appProviders), $vendorPath);
+		$this->addAutoloadFiles($providerFilePath);
 	}
 
 	private function findVendorProviders() {
@@ -60,11 +61,12 @@ class Processor extends ProcessorAbstract {
 		}
 		$content .="	];\r\n}";
 
-		$providerFile = $vendorPath  . '/composer/rangine/autoload/provider.php';
-		if (!is_dir(dirname($providerFile))) {
-			mkdir(dirname($providerFile), 0777, true);
+		$providerFilePath = $vendorPath  . '/composer/rangine/autoload/provider.php';
+		if (!is_dir(dirname($providerFilePath))) {
+			mkdir(dirname($providerFilePath), 0777, true);
 		}
-		file_put_contents($providerFile, $content);
-		$this->addAutoloadFiles($providerFile);
+		file_put_contents($providerFilePath, $content);
+
+		return $providerFilePath;
 	}
 }
