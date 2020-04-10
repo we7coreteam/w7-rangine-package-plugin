@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Rangine package plugin
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\PackagePlugin\Processor\Provider;
 
 use Symfony\Component\Finder\Finder;
@@ -10,8 +20,7 @@ class Processor extends ProcessorAbstract {
 	public function process($vendorPath) {
 		$vendorProviders = $this->findVendorProviders();
 		$appProviders = $this->findAppProviders($vendorPath);
-		$providerFilePath = $this->generateProviderConfig(array_merge($vendorProviders, $appProviders), $vendorPath);
-		$this->addAutoloadFiles($providerFilePath);
+		$this->generateProviderConfig(array_merge($vendorProviders, $appProviders), $vendorPath);
 	}
 
 	private function findVendorProviders() {
@@ -51,22 +60,18 @@ class Processor extends ProcessorAbstract {
 	}
 
 	private function generateProviderConfig($providers, $vendorPath) {
-		$content = "<?php\r\nfunction iUserProviders() { \r\n	return [\r\n";
+		$content = "<?php\r\nreturn [\r\n";
 		foreach ($providers as $name => $provider) {
-			$content .= "		'" . $name . "' => [\r\n";
+			$content .= "	'" . $name . "' => [\r\n";
 			foreach ($provider as $item) {
-				$content .= "			'" . $item . "',";
+				$content .= "		'" . $item . "',";
 			}
-			$content .= "\r\n		],\r\n";
+			$content .= "\r\n	],\r\n";
 		}
-		$content .="	];\r\n}";
+		$content .="];";
 
-		$providerFilePath = $vendorPath  . '/composer/rangine/autoload/provider.php';
-		if (!is_dir(dirname($providerFilePath))) {
-			mkdir(dirname($providerFilePath), 0777, true);
-		}
+		$providerFilePath = $vendorPath  . '/composer/rangine/autoload/config/provider.php';
+		$this->ensureDirectoryExists(dirname($providerFilePath));
 		file_put_contents($providerFilePath, $content);
-
-		return $providerFilePath;
 	}
 }

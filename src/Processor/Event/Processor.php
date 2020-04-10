@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Rangine package plugin
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\PackagePlugin\Processor\Event;
 
 use Symfony\Component\Finder\Finder;
@@ -10,8 +20,7 @@ class Processor extends ProcessorAbstract {
 	public function process($vendorPath) {
 		$dir = dirname($vendorPath, 1) . '/app/Event';
 		$appEvents = $this->findEvents($dir, 'W7\\App');
-		$eventFilePath = $this->generateEventConfig($appEvents, $vendorPath);
-		$this->addAutoloadFiles($eventFilePath);
+		$this->generateEventConfig($appEvents, $vendorPath);
 	}
 
 	/**
@@ -49,23 +58,19 @@ class Processor extends ProcessorAbstract {
 	}
 
 	private function generateEventConfig($events, $vendorPath) {
-		$content = "<?php\r\nfunction iUserEvents() { \r\n	return [\r\n";
+		$content = "<?php\r\nreturn [\r\n";
 		foreach ($events as $event => $listeners) {
 			$listeners = (array)$listeners;
-			$content .= "		'" . $event . "' => [\r\n";
+			$content .= "	'" . $event . "' => [\r\n";
 			foreach ($listeners as $listener) {
-				$content .= "			'" . $listener . "',";
+				$content .= "		'" . $listener . "',";
 			}
-			$content .= "\r\n		],\r\n";
+			$content .= "\r\n	],\r\n";
 		}
-		$content .="	];\r\n}";
+		$content .="];";
 
-		$eventFilePath = $vendorPath  . '/composer/rangine/autoload/event.php';
-		if (!is_dir(dirname($eventFilePath))) {
-			mkdir(dirname($eventFilePath), 0777, true);
-		}
+		$eventFilePath = $vendorPath  . '/composer/rangine/autoload/config/event.php';
+		$this->ensureDirectoryExists(dirname($eventFilePath));
 		file_put_contents($eventFilePath, $content);
-
-		return $eventFilePath;
 	}
 }
