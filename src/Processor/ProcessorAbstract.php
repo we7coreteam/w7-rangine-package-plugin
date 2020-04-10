@@ -30,6 +30,14 @@ abstract class ProcessorAbstract {
 	 */
 	protected $io;
 	/**
+	 * @var string
+	 */
+	protected $vendorPath;
+	/**
+	 * @var string
+	 */
+	protected $basePath;
+	/**
 	 * @var array
 	 */
 	protected $installedFileData = [];
@@ -48,6 +56,11 @@ abstract class ProcessorAbstract {
 		$this->installedFileData = $data;
 	}
 
+	public function setVendorPath(string $vendorPath) {
+		$this->vendorPath = $vendorPath;
+		$this->basePath = dirname($this->vendorPath, 1);
+	}
+
 	protected function addAutoloadFiles($files) {
 		$files = (array)$files;
 		$this->autoloadFiles = array_merge($this->autoloadFiles, $files);
@@ -57,7 +70,7 @@ abstract class ProcessorAbstract {
 		return $this->autoloadFiles;
 	}
 
-	abstract public function process($vendorPath);
+	abstract public function process();
 
 	protected function ensureDirectoryExists($directory) {
 		if (!is_dir($directory)) {
@@ -72,5 +85,32 @@ abstract class ProcessorAbstract {
 				);
 			}
 		}
+	}
+
+	protected function generateConfigFiles($file, $contents) {
+		$contents = $this->processItems($contents);
+		$filePath = $this->vendorPath . '/composer/rangine/autoload/config/' . $file;
+		$this->ensureDirectoryExists(dirname($filePath));
+		$contents = "<?php\r\nreturn [\r\n" . $contents . "];";
+		file_put_contents($filePath, $contents);
+	}
+
+	private function processItems($items, $level = 1) {
+		$contents = '';
+		foreach ($items as $key => $item) {
+			if (!is_integer($key)) {
+				$key = '\'' . $key . '\'';
+			}
+
+			$pad = \str_pad('', $level, '	');
+			$contents .= $pad . $key . ' => ';
+			if (is_array($item)) {
+				$contents .= "[\n" . $this->processItems($item, $level + 1) . $pad . "],\n";
+			} else {
+				$contents .= '\'' . $item . '\'' . ",\n";
+			}
+		}
+
+		return $contents;
 	}
 }

@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Rangine package plugin
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\PackagePlugin\Plugin;
 
 use Composer\Composer;
@@ -11,7 +21,8 @@ use Composer\EventDispatcher\EventSubscriberInterface;
 use ComposerIncludeFiles\Composer\AutoloadGenerator;
 use W7\PackagePlugin\Processor\ProcessorAbstract;
 use W7\PackagePlugin\Processor\Provider\Processor as ProviderProcessor;
-use W7\PackagePlugin\Processor\Event\Processor as EventProvessor;
+use W7\PackagePlugin\Processor\Event\Processor as EventProcessor;
+use W7\PackagePlugin\Processor\Handler\Processor as HandlerProcessor;
 
 class Plugin implements PluginInterface, EventSubscriberInterface {
 	/**
@@ -26,7 +37,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 
 	protected $processors = [
 		ProviderProcessor::class,
-		EventProvessor::class
+		EventProcessor::class,
+		HandlerProcessor::class
 	];
 
 	protected $installedFileData = [];
@@ -91,8 +103,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			 * @var ProcessorAbstract $processor
 			 */
 			$processor = new $processor($event);
+			$processor->setVendorPath($vendorPath);
 			$processor->setInstalledFileContent($installedFileData);
-			$processor->process($vendorPath);
+			$processor->process();
 			$autoloadFiles = array_merge($autoloadFiles, $processor->getAutoloadFiles());
 		}
 

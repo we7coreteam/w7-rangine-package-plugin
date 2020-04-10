@@ -17,10 +17,10 @@ use Symfony\Component\Finder\SplFileInfo;
 use W7\PackagePlugin\Processor\ProcessorAbstract;
 
 class Processor extends ProcessorAbstract {
-	public function process($vendorPath) {
+	public function process() {
 		$vendorProviders = $this->findVendorProviders();
-		$appProviders = $this->findAppProviders($vendorPath);
-		$this->generateProviderConfig(array_merge($vendorProviders, $appProviders), $vendorPath);
+		$appProviders = $this->findAppProviders();
+		$this->generateConfigFiles('provider.php', array_merge($vendorProviders, $appProviders));
 	}
 
 	private function findVendorProviders() {
@@ -34,8 +34,8 @@ class Processor extends ProcessorAbstract {
 		return $providers;
 	}
 
-	private function findAppProviders($vendorPath) {
-		$dir = dirname($vendorPath, 1) . '/app/Provider';
+	private function findAppProviders() {
+		$dir = $this->basePath . '/app/Provider';
 		$namespace = 'W7/App/Provider';
 		$providers = [];
 		if (!is_dir($dir)) {
@@ -57,21 +57,5 @@ class Processor extends ProcessorAbstract {
 		}
 
 		return $providers;
-	}
-
-	private function generateProviderConfig($providers, $vendorPath) {
-		$content = "<?php\r\nreturn [\r\n";
-		foreach ($providers as $name => $provider) {
-			$content .= "	'" . $name . "' => [\r\n";
-			foreach ($provider as $item) {
-				$content .= "		'" . $item . "',";
-			}
-			$content .= "\r\n	],\r\n";
-		}
-		$content .="];";
-
-		$providerFilePath = $vendorPath  . '/composer/rangine/autoload/config/provider.php';
-		$this->ensureDirectoryExists(dirname($providerFilePath));
-		file_put_contents($providerFilePath, $content);
 	}
 }

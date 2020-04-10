@@ -17,10 +17,8 @@ use Symfony\Component\Finder\SplFileInfo;
 use W7\PackagePlugin\Processor\ProcessorAbstract;
 
 class Processor extends ProcessorAbstract {
-	public function process($vendorPath) {
-		$dir = dirname($vendorPath, 1) . '/app/Event';
-		$appEvents = $this->findEvents($dir, 'W7\\App');
-		$this->generateEventConfig($appEvents, $vendorPath);
+	public function process() {
+		$this->generateConfigFiles('event.php', $this->findEvents());
 	}
 
 	/**
@@ -29,7 +27,9 @@ class Processor extends ProcessorAbstract {
 	 * @param $classNamespace
 	 * @return array
 	 */
-	private function findEvents($path, $classNamespace) {
+	private function findEvents() {
+		$path = $this->basePath . '/app/Event';
+		$classNamespace = 'W7\\App';
 		$events = [];
 
 		$files = Finder::create()
@@ -55,22 +55,5 @@ class Processor extends ProcessorAbstract {
 		}
 
 		return $events;
-	}
-
-	private function generateEventConfig($events, $vendorPath) {
-		$content = "<?php\r\nreturn [\r\n";
-		foreach ($events as $event => $listeners) {
-			$listeners = (array)$listeners;
-			$content .= "	'" . $event . "' => [\r\n";
-			foreach ($listeners as $listener) {
-				$content .= "		'" . $listener . "',";
-			}
-			$content .= "\r\n	],\r\n";
-		}
-		$content .="];";
-
-		$eventFilePath = $vendorPath  . '/composer/rangine/autoload/config/event.php';
-		$this->ensureDirectoryExists(dirname($eventFilePath));
-		file_put_contents($eventFilePath, $content);
 	}
 }
