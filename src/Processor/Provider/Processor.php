@@ -35,15 +35,15 @@ class Processor extends ProcessorAbstract {
 	}
 
 	private function findAppProviders() {
-		$dir = $this->basePath . '/app/Provider';
-		$namespace = 'W7/App/Provider';
 		$providers = [];
-		if (!is_dir($dir)) {
+		$providerPath = $this->basePath . '/app/Provider';
+		if (!is_dir($providerPath)) {
 			return $providers;
 		}
 
+		$namespace = 'W7/App/Provider';
 		$files = Finder::create()
-			->in($dir)
+			->in($providerPath)
 			->files()
 			->ignoreDotFiles(true)
 			->name('/^[\w\W\d]+Provider.php$/');
@@ -52,7 +52,7 @@ class Processor extends ProcessorAbstract {
 		 * @var SplFileInfo $file
 		 */
 		foreach ($files as $file) {
-			$path = str_replace([$dir, '.php', '/'], [$namespace, '', '\\'], $file->getRealPath());
+			$path = str_replace([$providerPath, '.php', '/'], [$namespace, '', '\\'], $file->getRealPath());
 			$providers[$path] = [$path];
 		}
 

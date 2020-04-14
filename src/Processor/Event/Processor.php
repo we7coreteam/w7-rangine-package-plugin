@@ -28,12 +28,15 @@ class Processor extends ProcessorAbstract {
 	 * @return array
 	 */
 	private function findEvents() {
-		$path = $this->basePath . '/app/Event';
-		$classNamespace = 'W7\\App';
 		$events = [];
+		$eventPath = $this->basePath . '/app/Event';
+		if (!file_exists($eventPath)) {
+			return $events;
+		}
 
+		$classNamespace = 'W7\\App';
 		$files = Finder::create()
-			->in($path)
+			->in($eventPath)
 			->files()
 			->ignoreDotFiles(true)
 			->name('/^[\w\W\d]+Event.php$/');
@@ -47,7 +50,7 @@ class Processor extends ProcessorAbstract {
 			$eventName = str_replace('/', '\\', $eventName);
 
 			$listenerFile = $eventName . 'Listener.php';
-			if (file_exists(dirname($path) . '/Listener/' . str_replace('\\', '/', $listenerFile))) {
+			if (file_exists(dirname($eventPath) . '/Listener/' . str_replace('\\', '/', $listenerFile))) {
 				$eventClass = $classNamespace . '\\Event\\' . $eventName . 'Event';
 				$listenerClass = $classNamespace . '\\Listener\\' . $eventName . 'Listener';
 				$events[$eventClass] = $listenerClass;
