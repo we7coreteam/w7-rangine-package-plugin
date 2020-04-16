@@ -17,10 +17,20 @@ use Symfony\Component\Finder\SplFileInfo;
 use W7\PackagePlugin\Processor\ProcessorAbstract;
 
 class Processor extends ProcessorAbstract {
+	protected $autoReloadPaths = [];
+	protected $openBaseDirs = [];
+
 	public function process() {
 		$vendorProviders = $this->findVendorProviders();
 		$appProviders = $this->findAppProviders();
 		$this->generateConfigFiles('provider.php', array_merge($vendorProviders, $appProviders));
+		$this->generateConfigFiles('reload.php', ['path' => $this->autoReloadPaths, 'type' => []]);
+		$appConfig = [
+			'setting' => [
+				'basedir' => $this->openBaseDirs
+			]
+		];
+		$this->generateConfigFiles('app.php', $appConfig);
 	}
 
 	private function findVendorProviders() {
@@ -28,6 +38,16 @@ class Processor extends ProcessorAbstract {
 		foreach ($this->installedFileData as $item) {
 			if (!empty($item['extra']['rangine']['providers'])) {
 				$providers[str_replace('/', '.', $item['name'])] = $item['extra']['rangine']['providers'];
+				//添加autoload path
+				if ($item[$item['installation-source']]['type'] == 'path') {
+					$path = $this->basePath . '/' . $item[$item['installation-source']]['url'];
+				} else {
+					$path = $this->basePath . '/vendor/' . $item['name'];
+				}
+				$path .= '/';
+				$this->autoReloadPaths[] = $path;
+				//添加安全目录
+				$this->openBaseDirs[] = $path;
 			}
 		}
 
