@@ -37,7 +37,7 @@ class Processor extends ProcessorAbstract {
 		$providers = [];
 		foreach ($this->installedFileData as $item) {
 			if (!empty($item['extra']['rangine']['providers'])) {
-				$providers[str_replace('/', '.', $item['name'])] = $item['extra']['rangine']['providers'];
+				$providers[$item['name']] = $item['extra']['rangine']['providers'];
 				//添加autoload path
 				if ($item[$item['installation-source']]['type'] == 'path') {
 					$path = $this->basePath . '/' . $item[$item['installation-source']]['url'];
