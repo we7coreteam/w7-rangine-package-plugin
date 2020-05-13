@@ -88,29 +88,9 @@ abstract class ProcessorAbstract {
 	}
 
 	protected function generateConfigFiles($file, $contents) {
-		$contents = $this->processItems($contents);
 		$filePath = $this->vendorPath . '/composer/rangine/autoload/config/' . $file;
 		$this->ensureDirectoryExists(dirname($filePath));
-		$contents = "<?php\r\nreturn [\r\n" . $contents . "];";
+		$contents = '<?php return ' . var_export($contents, true) . ';';
 		file_put_contents($filePath, $contents);
-	}
-
-	private function processItems($items, $level = 1) {
-		$contents = '';
-		foreach ($items as $key => $item) {
-			if (!is_integer($key)) {
-				$key = '\'' . $key . '\'';
-			}
-
-			$pad = \str_pad('', $level, '	');
-			$contents .= $pad . $key . ' => ';
-			if (is_array($item)) {
-				$contents .= "[\n" . $this->processItems($item, $level + 1) . $pad . "],\n";
-			} else {
-				$contents .= '\'' . $item . '\'' . ",\n";
-			}
-		}
-
-		return $contents;
 	}
 }
