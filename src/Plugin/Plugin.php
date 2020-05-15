@@ -19,10 +19,9 @@ use Composer\Util\Filesystem;
 use Composer\Plugin\PluginInterface;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use ComposerIncludeFiles\Composer\AutoloadGenerator;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use W7\PackagePlugin\Processor\ProcessorAbstract;
-use W7\PackagePlugin\Processor\Provider\Processor as ProviderProcessor;
-use W7\PackagePlugin\Processor\Event\Processor as EventProcessor;
-use W7\PackagePlugin\Processor\Handler\Processor as HandlerProcessor;
 
 class Plugin implements PluginInterface, EventSubscriberInterface {
 	/**
@@ -34,12 +33,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 	 * @var IOInterface
 	 */
 	protected $io;
-
-	protected $processors = [
-		ProviderProcessor::class,
-		EventProcessor::class,
-		HandlerProcessor::class
-	];
 
 	protected $installedFileData = [];
 
@@ -98,7 +91,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		$installedFileData = $plugin->getInstalledFileData($vendorPath);
 
 		$autoloadFiles = [];
-		foreach ($plugin->processors as $processor) {
+		foreach ($plugin->findProcessor() as $processor) {
 			/**
 			 * @var ProcessorAbstract $processor
 			 */
@@ -110,5 +103,31 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		}
 
 		$plugin->addAutoloadFiles($autoloadFiles);
+	}
+
+	protected function findProcessor() {
+		$processors = [];
+		$path = dirname(__DIR__, 1) . '/Processor/';
+		if (!file_exists($path)) {
+			return $processors;
+		}
+
+		$files = Finder::create()
+			->in($path)
+			->files()
+			->ignoreDotFiles(true)
+			->name('/^Processor.php$/');
+
+		/**
+		 * @var SplFileInfo $file
+		 */
+		foreach ($files as $file) {
+			$processorName = $file->getRelativePathname();
+			$processorName = str_replace(['/', '.php'], ['\\', ''], $processorName);
+			$processorName = '\W7\PackagePlugin\Processor\\'. $processorName;
+			$processors[] = $processorName;
+		}
+
+		return $processors;
 	}
 }
