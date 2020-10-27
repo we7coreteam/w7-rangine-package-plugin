@@ -77,7 +77,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		ob_start();
 		include $installedFile;
 		$installedFileData = ob_get_clean();
-		$this->installedFileData = json_decode($installedFileData, true);
+		$this->installedFileData = json_decode($installedFileData, true)['packages'];
 		return $this->installedFileData;
 	}
 
