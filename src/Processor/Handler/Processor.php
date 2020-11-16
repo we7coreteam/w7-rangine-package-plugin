@@ -17,29 +17,23 @@ use Symfony\Component\Finder\SplFileInfo;
 use W7\PackagePlugin\Processor\ProcessorAbstract;
 
 class Processor extends ProcessorAbstract {
+	protected $supportHandlerType = [
+		'Session',
+		'Cache',
+		'Log',
+		'View'
+	];
+
 	public function process() {
 		$this->generateConfigFiles('handler.php', $this->getHandlers());
 	}
 
 	private function getHandlers() {
 		$handlers = [];
-		$supportHandlerType = Finder::create()
-			->in($this->basePath . '/app/Handler' . '/')
-			->directories()
-			->ignoreDotFiles(true);
-
-		/**
-		 * @var SplFileInfo $item
-		 */
-		foreach ($supportHandlerType as $item) {
-			if (!empty($item->getRelativePath())) {
-				continue;
-			}
-
-			$handlerName = $item->getRelativePathname();
-			$userHandlers = $this->findHandlers($this->basePath . '/app/Handler' . '/' . $handlerName, 'W7\\App\\Handler\\' . $handlerName);
-			$frameHandlers = $this->findHandlers($this->vendorPath . '/w7/rangine/Src/Core/' . $handlerName . '/Handler', sprintf('W7\\Core\\%s\\Handler', $handlerName));
-			$handlers[strtolower($handlerName)] = array_merge($frameHandlers, $userHandlers);
+		foreach ($this->supportHandlerType as $item) {
+			$userHandlers = $this->findHandlers($this->basePath . '/app/Handler' . '/' . $item, 'W7\\App\\Handler\\' . $item);
+			$frameHandlers = $this->findHandlers($this->vendorPath . '/w7/rangine/Src/Core/' . $item . '/Handler', sprintf('W7\\Core\\%s\\Handler', $item));
+			$handlers[strtolower($item)] = array_merge($frameHandlers, $userHandlers);
 		}
 		return $handlers;
 	}
