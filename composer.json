@@ -5,7 +5,7 @@
 	"type": "composer-plugin",
 	"require": {
 		"ext-json": "*",
-		"composer-plugin-api": "*",
+		"composer-plugin-api": "^1.0",
 		"funkjedi/composer-include-files": "^1.0",
 		"composer/composer": "~1.0"
 	},
