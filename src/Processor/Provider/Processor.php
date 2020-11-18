@@ -23,7 +23,7 @@ class Processor extends ProcessorAbstract {
 	public function process() {
 		$vendorProviders = $this->findVendorProviders();
 		$appProviders = $this->findAppProviders();
-		$this->generateConfigFiles('provider.php', array_merge($vendorProviders, $appProviders));
+		$this->generateConfigFiles('provider.php', ['providers' => array_merge($vendorProviders, $appProviders)]);
 		$this->generateConfigFiles('reload.php', ['path' => $this->autoReloadPaths, 'type' => []]);
 		$appConfig = [
 			'setting' => [
