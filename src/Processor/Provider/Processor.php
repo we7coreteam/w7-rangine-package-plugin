@@ -72,7 +72,7 @@ class Processor extends ProcessorAbstract {
 		 * @var SplFileInfo $file
 		 */
 		foreach ($files as $file) {
-			$path = str_replace([$providerPath, '.php', '/'], [$namespace, '', '\\'], $file->getRealPath());
+			$path = str_replace([$providerPath, '.php', '/'], [$namespace, '', '\\'], $file->getPathname());
 			$providers[$path] = [$path];
 		}
 
