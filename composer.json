@@ -7,7 +7,7 @@
 		"ext-json": "*",
 		"composer-plugin-api": "*",
 		"funkjedi/composer-include-files": "^1.0",
-		"composer/composer": "~1.0"
+		"composer/composer": "*"
 	},
 	"require-dev": {
 		"w7/php-cs-fixer": "*"
