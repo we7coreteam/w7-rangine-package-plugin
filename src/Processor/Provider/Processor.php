@@ -23,14 +23,20 @@ class Processor extends ProcessorAbstract {
 	public function process() {
 		$vendorProviders = $this->findVendorProviders();
 		$appProviders = $this->findAppProviders();
+
 		$this->generateConfigFiles('provider.php', ['providers' => array_merge($vendorProviders, $appProviders)]);
-		$this->generateConfigFiles('reload.php', ['path' => $this->autoReloadPaths, 'type' => []]);
+		$basePathReplaceKey = "'" . '$basePath';
+		$replaces = [
+			'<?php ' => '<?php' . "\n\n" . '$basePath = dirname(dirname(__FILE__),5);' . "\n",
+			$basePathReplaceKey => '"$basePath" . ' . "'"
+		];
+		$this->generateConfigFiles('reload.php', ['path' => $this->autoReloadPaths, 'type' => []], $replaces);
 		$appConfig = [
 			'setting' => [
 				'basedir' => $this->openBaseDirs
 			]
 		];
-		$this->generateConfigFiles('app.php', $appConfig);
+		$this->generateConfigFiles('app.php', $appConfig, $replaces);
 	}
 
 	private function findVendorProviders() {
@@ -40,9 +46,9 @@ class Processor extends ProcessorAbstract {
 				$providers[$item['name']] = $item['extra']['rangine']['providers'];
 				//添加autoload path
 				if ($item[$item['installation-source']]['type'] == 'path') {
-					$path = $this->basePath . '/' . $item[$item['installation-source']]['url'];
+					$path = '$basePath' . '/' . $item[$item['installation-source']]['url'];
 				} else {
-					$path = $this->basePath . '/vendor/' . $item['name'];
+					$path = '$basePath' . '/vendor/' . $item['name'];
 				}
 				$path .= '/';
 				$this->autoReloadPaths[] = $path;

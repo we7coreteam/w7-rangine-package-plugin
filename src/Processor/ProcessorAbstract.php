@@ -87,10 +87,13 @@ abstract class ProcessorAbstract {
 		}
 	}
 
-	protected function generateConfigFiles($file, $contents) {
+	protected function generateConfigFiles($file, $contents, $replaces = []) {
 		$filePath = $this->vendorPath . '/composer/rangine/autoload/config/' . $file;
 		$this->ensureDirectoryExists(dirname($filePath));
 		$contents = '<?php return ' . var_export($contents, true) . ';';
+		foreach ($replaces as $search => $replace) {
+			$contents = str_replace($search, $replace, $contents);
+		}
 		file_put_contents($filePath, $contents);
 	}
 }
