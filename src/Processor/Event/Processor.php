@@ -32,7 +32,6 @@ class Processor extends ProcessorAbstract {
 			return $events;
 		}
 
-		$classNamespace = 'W7\\App';
 		$files = Finder::create()
 			->in($eventPath)
 			->files()
@@ -49,8 +48,8 @@ class Processor extends ProcessorAbstract {
 
 			$listenerFile = $eventName . 'Listener.php';
 			if (file_exists(dirname($eventPath) . '/Listener/' . str_replace('\\', '/', $listenerFile))) {
-				$eventClass = $classNamespace . '\\Event\\' . $eventName . 'Event';
-				$listenerClass = $classNamespace . '\\Listener\\' . $eventName . 'Listener';
+				$eventClass = $this->appNamespace . '\\Event\\' . $eventName . 'Event';
+				$listenerClass = $this->appNamespace . '\\Listener\\' . $eventName . 'Listener';
 				$events[$eventClass] = $listenerClass;
 			}
 		}

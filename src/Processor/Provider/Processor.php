@@ -67,7 +67,7 @@ class Processor extends ProcessorAbstract {
 			return $providers;
 		}
 
-		$namespace = 'W7/App/Provider';
+		$namespace = $this->appNamespace . '\\Provider';
 		$files = Finder::create()
 			->in($providerPath)
 			->files()

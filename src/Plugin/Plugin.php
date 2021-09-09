@@ -19,8 +19,10 @@ use Composer\Util\Filesystem;
 use Composer\Plugin\PluginInterface;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use ComposerIncludeFiles\Composer\AutoloadGenerator;
+use RuntimeException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use W7\PackagePlugin\Helper\Helper;
 use W7\PackagePlugin\Processor\ProcessorAbstract;
 
 class Plugin implements PluginInterface, EventSubscriberInterface {
@@ -90,12 +92,30 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		$generator->dumpFiles($this->composer, $files);
 	}
 
+	public function getAppNamespaceFromComposer() {
+		$basePath = dirname($this->getVendorPath(), 1);
+		$composer = json_decode(file_get_contents($basePath . '/composer.json'), true);
+
+		$psr4 = $composer['autoload']['psr-4'] ?? [];
+		foreach ((array) $psr4 as $namespace => $path) {
+			foreach ((array) $path as $pathChoice) {
+				if (realpath($basePath . '/app') === realpath($basePath . '/' . ltrim($pathChoice, '/'))) {
+					$namespace = '\\' . trim($namespace, '\\');
+					return $namespace;
+				}
+			}
+		}
+
+		throw new RuntimeException('Unable to detect application namespace.');
+	}
+
 	public static function initPackage(Event $event) {
 		$plugin = new static();
 		$plugin->activate($event->getComposer(), $event->getIO());
 
 		$vendorPath = $plugin->getVendorPath();
 		$installedFileData = $plugin->getInstalledFileData($vendorPath);
+		$appNamespace = $plugin->getAppNamespaceFromComposer();
 
 		$autoloadFiles = [];
 		foreach ($plugin->findProcessor() as $processor) {
@@ -103,12 +123,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			 * @var ProcessorAbstract $processor
 			 */
 			$processor = new $processor($event);
+			$processor->setAppNamespace($appNamespace);
 			$processor->setVendorPath($vendorPath);
 			$processor->setInstalledFileContent($installedFileData);
 			$processor->process();
 			$autoloadFiles = array_merge($autoloadFiles, $processor->getAutoloadFiles());
 		}
 
+		$appNamespaceDefineFile = $plugin->generateAppNamespaceDefineFile($appNamespace);
+		$autoloadFiles[] = $appNamespaceDefineFile;
 		$plugin->addAutoloadFiles($autoloadFiles);
 	}
 
@@ -136,5 +159,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		}
 
 		return $processors;
+	}
+
+	protected function generateAppNamespaceDefineFile($appNamespace) {
+		$filePath = $this->getVendorPath() . '/composer/rangine/autoload/define/namespace.php';
+		Helper::ensureDirectoryExists(dirname($filePath));
+
+		$contents = "<?php \n\r" . "!defined('APP_NAMESPACE') && define('APP_NAMESPACE', '{$appNamespace}');";
+		file_put_contents($filePath, $contents);
+
+		return $filePath;
 	}
 }

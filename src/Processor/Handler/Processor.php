@@ -31,7 +31,7 @@ class Processor extends ProcessorAbstract {
 	private function getHandlers() {
 		$handlers = [];
 		foreach ($this->supportHandlerType as $item) {
-			$userHandlers = $this->findHandlers($this->basePath . '/app/Handler' . '/' . $item, 'W7\\App\\Handler\\' . $item);
+			$userHandlers = $this->findHandlers($this->basePath . '/app/Handler' . '/' . $item, $this->appNamespace . '\\Handler\\' . $item);
 			$frameHandlers = $this->findHandlers($this->vendorPath . '/w7/rangine/Src/Core/' . $item . '/Handler', sprintf('W7\\Core\\%s\\Handler', $item));
 			$handlers[strtolower($item)] = array_merge($frameHandlers, $userHandlers);
 		}

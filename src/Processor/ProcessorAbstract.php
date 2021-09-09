@@ -15,6 +15,7 @@ namespace W7\PackagePlugin\Processor;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Script\Event;
+use W7\PackagePlugin\Helper\Helper;
 
 abstract class ProcessorAbstract {
 	/**
@@ -29,6 +30,10 @@ abstract class ProcessorAbstract {
 	 * @var IOInterface
 	 */
 	protected $io;
+	/**
+	 * @var string
+	 */
+	protected $appNamespace;
 	/**
 	 * @var string
 	 */
@@ -56,6 +61,10 @@ abstract class ProcessorAbstract {
 		$this->installedFileData = $data;
 	}
 
+	public function setAppNamespace(string $appNamespace) {
+		$this->appNamespace = $appNamespace;
+	}
+
 	public function setVendorPath(string $vendorPath) {
 		$this->vendorPath = $vendorPath;
 		$this->basePath = dirname($this->vendorPath, 1);
@@ -72,24 +81,9 @@ abstract class ProcessorAbstract {
 
 	abstract public function process();
 
-	protected function ensureDirectoryExists($directory) {
-		if (!is_dir($directory)) {
-			if (file_exists($directory)) {
-				throw new \RuntimeException(
-					$directory.' exists and is not a directory.'
-				);
-			}
-			if (!@mkdir($directory, 0777, true)) {
-				throw new \RuntimeException(
-					$directory.' does not exist and could not be created.'
-				);
-			}
-		}
-	}
-
 	protected function generateConfigFiles($file, $contents, $replaces = []) {
 		$filePath = $this->vendorPath . '/composer/rangine/autoload/config/' . $file;
-		$this->ensureDirectoryExists(dirname($filePath));
+		Helper::ensureDirectoryExists(dirname($filePath));
 		$contents = '<?php return ' . var_export($contents, true) . ';';
 		foreach ($replaces as $search => $replace) {
 			$contents = str_replace($search, $replace, $contents);
