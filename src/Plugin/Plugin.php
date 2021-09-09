@@ -100,7 +100,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		foreach ((array) $psr4 as $namespace => $path) {
 			foreach ((array) $path as $pathChoice) {
 				if (realpath($basePath . '/app') === realpath($basePath . '/' . ltrim($pathChoice, '/'))) {
-					$namespace = '\\' . trim($namespace, '\\');
+					$namespace = trim($namespace, '\\');
 					return $namespace;
 				}
 			}
