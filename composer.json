@@ -15,7 +15,10 @@
 	"autoload": {
 		"psr-4" : {
 			"W7\\PackagePlugin\\": "src/"
-		}
+		},
+		"files": [
+			"src/Define/namespace.php"
+		]
 	},
 	"extra": {
 		"class": "W7\\PackagePlugin\\Plugin\\Plugin"

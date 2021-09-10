@@ -22,7 +22,6 @@ use ComposerIncludeFiles\Composer\AutoloadGenerator;
 use RuntimeException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use W7\PackagePlugin\Helper\Helper;
 use W7\PackagePlugin\Processor\ProcessorAbstract;
 
 class Plugin implements PluginInterface, EventSubscriberInterface {
@@ -88,6 +87,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		if (!$files) {
 			return true;
 		}
+
 		$generator = new AutoloadGenerator($this->composer->getEventDispatcher(), $this->io);
 		$generator->dumpFiles($this->composer, $files);
 	}
@@ -130,8 +130,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			$autoloadFiles = array_merge($autoloadFiles, $processor->getAutoloadFiles());
 		}
 
-		$appNamespaceDefineFile = $plugin->generateAppNamespaceDefineFile($appNamespace);
-		$autoloadFiles[] = $appNamespaceDefineFile;
+		$plugin->generateAppNamespaceDefineFile($appNamespace);
 		$plugin->addAutoloadFiles($autoloadFiles);
 	}
 
@@ -162,12 +161,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 	}
 
 	protected function generateAppNamespaceDefineFile($appNamespace) {
-		$filePath = $this->getVendorPath() . '/composer/rangine/autoload/define/namespace.php';
-		Helper::ensureDirectoryExists(dirname($filePath));
+		$filePath = dirname(__DIR__) . '/Define/namespace.php';
 
 		$contents = "<?php \n\r" . "!defined('APP_NAMESPACE') && define('APP_NAMESPACE', '{$appNamespace}');";
 		file_put_contents($filePath, $contents);
-
-		return $filePath;
 	}
 }
