@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Rangine package plugin
+ * WeEngine Api System
  *
  * (c) We7Team 2019 <https://www.w7.cc>
  *
@@ -19,7 +19,6 @@ use Composer\Util\Filesystem;
 use Composer\Plugin\PluginInterface;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use ComposerIncludeFiles\Composer\AutoloadGenerator;
-use RuntimeException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use W7\PackagePlugin\Processor\ProcessorAbstract;
@@ -74,7 +73,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			return $this->installedFileData;
 		}
 
-		$installedFile = $vendorPath.'/composer/installed.json';
+		$installedFile = $vendorPath . '/composer/installed.json';
 		ob_start();
 		include $installedFile;
 		$installedFileData = ob_get_clean();
@@ -106,7 +105,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			}
 		}
 
-		throw new RuntimeException('Unable to detect application namespace.');
+		return 'W7\\App';
 	}
 
 	public static function initPackage(Event $event) {
@@ -153,7 +152,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		foreach ($files as $file) {
 			$processorName = $file->getRelativePathname();
 			$processorName = str_replace(['/', '.php'], ['\\', ''], $processorName);
-			$processorName = '\W7\PackagePlugin\Processor\\'. $processorName;
+			$processorName = '\W7\PackagePlugin\Processor\\' . $processorName;
 			$processors[] = $processorName;
 		}
 
