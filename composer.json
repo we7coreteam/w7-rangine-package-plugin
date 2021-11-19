@@ -22,10 +22,5 @@
 	},
 	"extra": {
 		"class": "W7\\PackagePlugin\\Plugin\\Plugin"
-	},
-	"scripts": {
-		"post-autoload-dump": [
-			"W7\\PackagePlugin\\Plugin\\Plugin::initPackage"
-		]
 	}
 }
