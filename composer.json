@@ -4,6 +4,7 @@
 	"description": "rangine package plugin",
 	"type": "composer-plugin",
 	"require": {
+		"php": ">=8.1",
 		"ext-json": "*",
 		"composer-plugin-api": "*",
 		"funkjedi/composer-include-files": "^1.0",
